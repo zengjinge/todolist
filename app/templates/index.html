@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            padding: 50px 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(90deg, #ffafbd, #ffc3a0);
+            background-repeat: no-repeat;
+        }
+
+        #app {
+            width: 500px;
+
+            background-color: white;
+            border-radius: 20px;
+
+        }
+
+        .box {
+            width: 400px;
+            min-height: 400px;
+            margin: 20px auto;
+
+            box-sizing: border-box;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loge,
+        .top {
+            display: block;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .loge .li {
+            height: 80px;
+            width: 80px;
+            background: url(https://www.todolist.cn/img/note.75134fb0.svg) no-repeat;
+        }
+
+        .loge span {
+            width: 100px;
+        }
+
+        .top input {
+            width: 200px;
+            border: none;
+
+            border-bottom: 2px dotted rgb(240, 156, 120);
+
+        }
+
+        .top button {
+            padding: 3px 10px;
+        }
+
+        .list .one {
+            width: 300px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+
+        }
+
+        .list .one span {
+            width: 200px;
+            overflow: hidden;
+            padding: 9px;
+        }
+
+        .tab {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .tab span {
+            font-size: 15px;
+            padding: 2px 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+
+        <div class="box">
+
+            <div class="loge">
+                <div class="li"></div>
+                <span>to-do-list</span>
+            </div>
+
+            <div class="top">
+                <input @keyup.enter.13="addtask()" type="text" placeholder=" 添加任务" v-model="number">
+                <button @click="addtask()">提交</button>
+            </div>
+
+            <div class="tab">
+                <span>未完成<b>{{unchecknum}}</b>个</span>
+                <span @click="x=null">全部任务</span>
+                <span @click="x=true">已完成任务</span>
+                <span @click="x=false">未完成任务</span>
+            </div>
+
+            <div class="list" v-for="(item,index) in list" v-if="x==null||x==item.status">
+                <div class="one">
+                    <input type="checkbox" v-model="item.status">
+                    <span v-model="editIndex" @dblclick="edit(item.status,index)" v-show="index!=editIndex">{{item.text}}</span>
+                    <input  type="text" :value="item.text" v-show="index==editIndex"
+                    @keydown.esc="editIndex=-1" @mouseleave="item.text= $event.target.value;editIndex=-1"
+                    @keydown.enter="item.text= $event.target.value;editIndex = -1"
+                    >
+
+                    <b @click="del(index)">x</b>
+                </div>
+
+
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="./vue.js/vue.js"></script>
+    <script>
+        let vm = new Vue({
+            el: "#app",
+
+            data: {
+                number: "",
+
+                list: [],
+                editIndex: -1,
+                x: null
+            },
+            methods: {
+
+                addtask() {
+                    if (this.number == "") {
+                        alert("不能为空")
+                    } else {
+                        this.list.push({ text: this.number, status: false });
+                        this.number = '';
+                    }
+
+                },
+
+                del(index) {
+
+                    this.list.splice(index, 1);
+
+                },
+                edit(status, index) {
+                    console.log(0);
+                    if (!status) {
+                        this.editIndex = index;
+                    }
+                }
+
+            },
+            computed: {
+                unchecknum() {
+                    return this.list.filter(t => !t.status).length
+                }
+            },
+            created() {
+                this.list = localStorage.getItem("list") ? JSON.parse(localStorage.getItem("list")) : []
+            },
+            watch: {
+                list() {
+                    localStorage.setItem("list", JSON.stringify(this.list))
+                },
+                unchecknum() {
+                    localStorage.setItem("list", JSON.stringify(this.list))
+                },
+                editIndex(){
+                    localStorage.setItem("list", JSON.stringify(this.list))
+                }
+            }
+
+
+
+        })
+
+    </script>
+</body>
+
+</html>
